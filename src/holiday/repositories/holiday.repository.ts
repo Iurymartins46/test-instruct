@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not, IsNull } from 'typeorm';
-import { Holiday } from './entities/holiday.entities';
+import { Holiday } from './entities/holiday.entity';
 import { HolidayRepositoryInterface } from './holiday-repository.interface';
 import { HolidayType } from 'src/utils/enums/holiday-type.enum';
 import { MovableHoliday } from 'src/utils/enums/movable-holiday.enum';

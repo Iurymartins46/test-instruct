@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { DataSource } from 'typeorm';
-import { Holiday } from '../holiday/repositories/entities/holiday.entities';
+import { Holiday } from '../holiday/repositories/entities/holiday.entity';
 import { Municipality } from '../municipality/repositories/entities/municipality.entity';
 import { HolidayType } from '../utils/enums/holiday-type.enum';
 

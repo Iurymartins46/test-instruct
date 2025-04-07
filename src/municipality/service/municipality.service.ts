@@ -12,7 +12,9 @@ export class MunicipalityService {
 
   async codeIbgeExists(codeIbge: string): Promise<boolean> {
     if (isStateCode(codeIbge)) {
-      return Boolean(await this.municipalityRepository.getByPrefixUf(codeIbge));
+      return Boolean(
+        (await this.municipalityRepository.getByPrefixUf(codeIbge)).length,
+      );
     }
     if (isMunicipalityCode(codeIbge)) {
       return Boolean(await this.municipalityRepository.getByCodeIbge(codeIbge));

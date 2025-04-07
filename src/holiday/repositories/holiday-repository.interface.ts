@@ -1,4 +1,4 @@
-import { Holiday } from './entities/holiday.entities';
+import { Holiday } from './entities/holiday.entity';
 import { MovableHoliday } from 'src/utils/enums/movable-holiday.enum';
 
 export interface HolidayRepositoryInterface {

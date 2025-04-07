@@ -4,7 +4,7 @@ import * as csv from 'csv-parser';
 import 'dotenv/config';
 import { DataSource } from 'typeorm';
 import { Municipality } from '../municipality/repositories/entities/municipality.entity';
-import { Holiday } from '../holiday/repositories/entities/holiday.entities';
+import { Holiday } from '../holiday/repositories/entities/holiday.entity';
 
 const AppDataSource = new DataSource({
   type: 'postgres',
