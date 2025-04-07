@@ -10,7 +10,6 @@ import { Municipality } from '../../../municipality/repositories/entities/munici
 import { MovableHoliday } from '../../../utils/enums/movable-holiday.enum';
 import { HolidayType } from '../../../utils/enums/holiday-type.enum';
 
-
 @Entity('holiday')
 export class Holiday {
   @PrimaryGeneratedColumn()

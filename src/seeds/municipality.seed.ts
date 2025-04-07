@@ -7,16 +7,16 @@ import { Municipality } from '../municipality/repositories/entities/municipality
 import { Holiday } from '../holiday/repositories/entities/holiday.entities';
 
 const AppDataSource = new DataSource({
-    type: 'postgres',
-    host: process.env.DB_HOST,
-    port: parseInt(process.env.DB_PORT || '5432', 10),
-    username: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE,
-    entities: [Municipality, Holiday],
-    synchronize: true,
-    logging: false,
-  });
+  type: 'postgres',
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT || '5432', 10),
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+  entities: [Municipality, Holiday],
+  synchronize: true,
+  logging: false,
+});
 
 async function seedMunicipality() {
   await AppDataSource.initialize();

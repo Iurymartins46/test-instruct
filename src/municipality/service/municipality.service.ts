@@ -1,19 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { isStateCode, isMunicipalityCode } from '../../utils/ibge-code';
 import { MunicipalityRepositoryInterface } from '../repositories/municipality-repository.interface';
-import { MunicipalityRepository } from '../repositories/municipality.repository';
 import { Municipality } from '../repositories/entities/municipality.entity';
-
-/**
- * export class HolidayService {
-  private holidayRepository: HolidayRepositoryInterface;
-  constructor(
-    private readonly holidayRepositoryImplement: HolidayRepository,
-    private readonly municipalityService: MunicipalityService,
-  ) {
-    this.holidayRepository = holidayRepositoryImplement;
-  }
- */
 
 @Injectable()
 export class MunicipalityService {
