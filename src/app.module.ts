@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './database/typeorm.config';
 import { MunicipalityModule } from './municipality/municipality.module';
+import { HolidayModule } from './holiday/holiday.module';
 
 @Module({
   imports: [
@@ -13,7 +14,9 @@ import { MunicipalityModule } from './municipality/municipality.module';
     TypeOrmModule.forRootAsync({
       useFactory: typeOrmConfig,
     }),
+    HolidayModule,
     MunicipalityModule,
   ],
 })
 export class AppModule {}
+
