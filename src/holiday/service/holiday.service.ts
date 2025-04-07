@@ -1,9 +1,20 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { MunicipalityService } from 'src/municipality/service/municipality.service';
 import { isStateCode } from 'src/utils/ibge-code';
-import { dateIsMovableHoliday } from '../../utils/calculate-movable-holidays';
 import { HolidayRepositoryInterface } from '../repositories/holiday-repository.interface';
 import { Holiday } from '../repositories/entities/holiday.entity';
+import { HolidayType } from '../../utils/enums/holiday-type.enum';
+import { MovableHoliday } from 'src/utils/enums/movable-holiday.enum';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import {
+  dateIsMovableHoliday,
+  parseMovableHoliday,
+} from '../../utils/calculate-movable-holidays';
 
 @Injectable()
 export class HolidayService {
@@ -67,7 +78,9 @@ export class HolidayService {
       ));
 
     if (!holiday) {
-      throw new NotFoundException('Feriado municipal não encontrado para a data');
+      throw new NotFoundException(
+        'Feriado municipal não encontrado para a data',
+      );
     }
     return holiday;
   }
@@ -82,5 +95,130 @@ export class HolidayService {
       return await this.getStateHoliday(codeIbge, dateMonthDay);
     }
     return await this.getMunicipalHoliday(codeIbge, date, dateMonthDay);
+  }
+
+  private async createStateHoliday(
+    name: string,
+    codeIbge: string,
+    data: string,
+  ): Promise<void> {
+    if (parseMovableHoliday(data)) {
+      throw new BadRequestException(
+        'Não é possivel cadastrar um feriado estadual movel, apenas um feriado fixo',
+      );
+    }
+    const stateHoliday = await this.holidayRepository.getStateHoliday(
+      codeIbge,
+      data,
+    );
+    if (stateHoliday) {
+      return await this.holidayRepository.update(stateHoliday.id, {
+        date_month_day: data,
+      });
+    }
+    await this.holidayRepository.create({
+      name: name,
+      holiday_type: HolidayType.STATE,
+      date_month_day: data,
+      prefix_uf: codeIbge,
+    });
+    return;
+  }
+
+  private async createMovableMunicipalHoliday(
+    name: string,
+    codeIbge: string,
+    isMovableHoliday: MovableHoliday,
+  ) {
+    const movableHoliday = await this.holidayRepository.getMovableHoliday(
+      codeIbge,
+      isMovableHoliday,
+    );
+    if (movableHoliday) {
+      return await this.holidayRepository.update(movableHoliday.id, {
+        name: name,
+      });
+    }
+    const municipality =
+      await this.municipalityService.getMunicipality(codeIbge);
+    if (!municipality) {
+      throw new NotFoundException(
+        'Codigo ibge não encontrado, informe um codigo ibge válido para o municipio',
+      );
+    }
+    await this.holidayRepository.create({
+      name: name,
+      holiday_type: HolidayType.MUNICIPAL,
+      movable_holiday: isMovableHoliday,
+      municipality: municipality,
+    });
+    return;
+  }
+
+  private async createFixedMunicipalHoliday(
+    name: string,
+    codeIbge: string,
+    data: string,
+  ) {
+    const codeIbgeState = codeIbge.slice(0, 2);
+    const stateHoliday = await this.holidayRepository.getStateHoliday(
+      codeIbgeState,
+      data,
+    );
+    console.log(codeIbge, data, JSON.stringify(stateHoliday));
+    if (stateHoliday) {
+      throw new BadRequestException(
+        'Já existe um feriado estadual na data informada, não é possivel cadastrar um feriado municipal',
+      );
+    }
+    const municipalityHoliday =
+      await this.holidayRepository.getMunicipalHoliday(codeIbge, data);
+    if (municipalityHoliday) {
+      return await this.holidayRepository.update(municipalityHoliday.id, {
+        name: name,
+      });
+    }
+    const municipality =
+      await this.municipalityService.getMunicipality(codeIbge);
+    if (!municipality) {
+      throw new NotFoundException('Ibge code is invalid, nunca entra aqui');
+    }
+    await this.holidayRepository.create({
+      name: name,
+      holiday_type: HolidayType.MUNICIPAL,
+      date_month_day: data,
+      municipality: municipality,
+    });
+    return;
+  }
+
+  async createHoliday(
+    name: string,
+    codeIbge: string,
+    data: string,
+  ): Promise<void> {
+    await this.validateCodeIbge(codeIbge);
+
+    if (await this.holidayRepository.getNationalHoliday(data)) {
+      throw new ForbiddenException(
+        'Feriado nacional existente para a data informada, não é possivel cadastrar um novo feriado nem atualizar o nome do mesmo',
+      );
+    }
+
+    if (isStateCode(codeIbge)) {
+      return await this.createStateHoliday(name, codeIbge, data);
+    }
+
+    const isMovableHoliday = parseMovableHoliday(data);
+
+    if (isMovableHoliday) {
+      return await this.createMovableMunicipalHoliday(
+        name,
+        codeIbge,
+        isMovableHoliday,
+      );
+    }
+
+    return await this.createFixedMunicipalHoliday(name, codeIbge, data);
   }
 }

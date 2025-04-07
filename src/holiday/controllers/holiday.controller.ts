@@ -21,21 +21,19 @@ export class HolidayController {
 
     return {
       name: holiday.name,
-    }
+    };
   }
 
   @Put(':code_ibge/:data')
   async createHoliday(
     @Param() params: PutDeleteHolidayDto,
     @Body() body: HolidayNameDto,
-    @Res() res: Response,
   ) {
-    try {
-      console.log(params.code_ibge, params.data, body.name);
-      return res.status(200).send();
-    } catch (error) {
-      return res.status(error.getStatus?.()).send();
-    }
+    return await this.holidayService.createHoliday(
+      body.name,
+      params.code_ibge,
+      params.data,
+    );
   }
 
   @Delete(':code_ibge/:data')
