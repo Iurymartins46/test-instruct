@@ -19,4 +19,3 @@ import { HolidayModule } from './holiday/holiday.module';
   ],
 })
 export class AppModule {}
-

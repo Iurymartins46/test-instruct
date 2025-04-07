@@ -3,7 +3,10 @@ import { isMunicipalityCode, isStateCode } from 'src/utils/ibge-code';
 import { HolidayRepositoryInterface } from '../repositories/holiday-repository.interface';
 import { Holiday } from '../repositories/entities/holiday.entity';
 import { HolidayType } from '../../utils/enums/holiday-type.enum';
-import { MovableHoliday, NameMovableHoliday } from 'src/utils/enums/movable-holiday.enum';
+import {
+  MovableHoliday,
+  NameMovableHoliday,
+} from 'src/utils/enums/movable-holiday.enum';
 import {
   BadRequestException,
   ForbiddenException,
@@ -185,7 +188,9 @@ export class HolidayService {
     const municipality =
       await this.municipalityService.getMunicipality(codeIbge);
     if (!municipality) {
-      throw new NotFoundException('Ibge code is invalid, nunca entra aqui');
+      throw new NotFoundException(
+        'Codigo ibge não encontrado, informe um codigo ibge válido para o municipio.',
+      );
     }
     await this.holidayRepository.create({
       name: name,

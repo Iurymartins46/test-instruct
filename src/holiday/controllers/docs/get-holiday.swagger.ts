@@ -29,14 +29,10 @@ export const SwaggerGetHoliday = [
   }),
 
   ApiResponse({
-    status: 400,
-    description:
-      'Código IBGE não encontrado. Informe um código válido para o município ou estado.\n',
-  }),
-
-  ApiResponse({
     status: 404,
-    description:
+    description: [
       'Para o estado ou município informado, não tem um feriado cadastrado para a data informada.\n',
+      'Código IBGE não encontrado. Informe um código válido para o município ou estado.\n',
+    ].join('\n'),
   }),
 ];

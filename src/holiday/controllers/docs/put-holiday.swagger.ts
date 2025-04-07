@@ -46,14 +46,13 @@ export const SwaggerPutHoliday = [
   }),
 
   ApiResponse({
-    status: 201,
+    status: 200,
     description: 'Requisição realizada com sucesso.\n',
   }),
 
   ApiResponse({
     status: 400,
     description: [
-      'Código IBGE não encontrado. Informe um código válido para o município ou estado.\n',
       'Tentativa de cadastrar um feriado fixo, mas não informa o nome do feriado.\n',
       'Tentativa de cadastrar um feriado movel para um estado.\n',
     ].join('\n'),
@@ -64,6 +63,13 @@ export const SwaggerPutHoliday = [
     description: [
       'Existe um feriado nacional cadastrado para a data informada, não é possível cadastrar um novo feriado nem atualizar o nome do mesmo.\n',
       'Já existe um feriado estadual na data informada, não é possível cadastrar um feriado municipal.\n',
+    ].join('\n'),
+  }),
+
+  ApiResponse({
+    status: 404,
+    description: [
+      'Código IBGE não encontrado. Informe um código válido para o município ou estado.\n',
     ].join('\n'),
   }),
 ];

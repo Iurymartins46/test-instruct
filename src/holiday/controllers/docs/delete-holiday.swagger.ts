@@ -28,7 +28,6 @@ export const SwaggerDeleteHoliday = [
   ApiResponse({
     status: 400,
     description: [
-      'Código IBGE não encontrado. Informe um código válido para o município ou estado.\n',
       'Tentativa de deletar um feriado movel para um estado.\n',
     ].join('\n'),
   }),
@@ -43,6 +42,9 @@ export const SwaggerDeleteHoliday = [
 
   ApiResponse({
     status: 404,
-    description: 'Feriado não encontrado na data informada.\n',
+    description: [
+      'Feriado não encontrado na data informada.\n',
+      'Código IBGE não encontrado. Informe um código válido para o município ou estado.\n',
+    ].join('\n'),
   }),
 ];
