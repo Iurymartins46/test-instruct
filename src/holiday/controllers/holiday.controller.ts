@@ -6,6 +6,7 @@ import {
   Put,
   Delete,
   HttpCode,
+  applyDecorators,
 } from '@nestjs/common';
 
 import { GetHolidayDto } from './dtos/get-holiday.dto';
@@ -15,11 +16,18 @@ import {
   HolidayNameDto,
 } from './dtos/put-delete-holiday.dto';
 
+import {
+  SwaggerGetHoliday,
+  SwaggerPutHoliday,
+  SwaggerDeleteHoliday,
+} from './docs';
+
 @Controller('feriados')
 export class HolidayController {
   constructor(private readonly holidayService: HolidayService) {}
 
   @Get(':code_ibge/:date')
+  @applyDecorators(...SwaggerGetHoliday)
   async getHoliday(@Param() params: GetHolidayDto) {
     const holiday = await this.holidayService.getHoliday(
       params.code_ibge,
@@ -32,6 +40,7 @@ export class HolidayController {
   }
 
   @Put(':code_ibge/:data')
+  @applyDecorators(...SwaggerPutHoliday)
   async createHoliday(
     @Param() params: PutDeleteHolidayDto,
     @Body() body: HolidayNameDto,
@@ -44,6 +53,7 @@ export class HolidayController {
   }
 
   @Delete(':code_ibge/:data')
+  @applyDecorators(...SwaggerDeleteHoliday)
   @HttpCode(204)
   async deleteHoliday(@Param() params: PutDeleteHolidayDto) {
     return await this.holidayService.deleteHoliday(
