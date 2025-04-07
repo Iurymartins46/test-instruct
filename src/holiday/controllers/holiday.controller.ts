@@ -5,11 +5,9 @@ import {
   Get,
   Put,
   Delete,
-  Res,
   HttpCode,
 } from '@nestjs/common';
 
-import { Response } from 'express';
 import { GetHolidayDto } from './dtos/get-holiday.dto';
 import { HolidayService } from '../service/holiday.service';
 import {
@@ -39,9 +37,9 @@ export class HolidayController {
     @Body() body: HolidayNameDto,
   ) {
     return await this.holidayService.createHoliday(
-      body.name,
       params.code_ibge,
       params.data,
+      body.name,
     );
   }
 

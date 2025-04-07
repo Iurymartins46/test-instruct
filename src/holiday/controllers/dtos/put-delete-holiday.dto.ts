@@ -1,5 +1,6 @@
 import { MovableHoliday } from '../../../utils/enums/movable-holiday.enum';
 import {
+  IsOptional,
   IsString,
   Matches,
   registerDecorator,
@@ -54,6 +55,7 @@ export class PutDeleteHolidayDto {
 }
 
 export class HolidayNameDto {
+  @IsOptional()
   @IsString()
-  name: string;
+  name?: string;
 }

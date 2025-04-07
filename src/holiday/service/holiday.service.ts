@@ -1,9 +1,9 @@
 import { MunicipalityService } from 'src/municipality/service/municipality.service';
-import { isStateCode } from 'src/utils/ibge-code';
+import { isMunicipalityCode, isStateCode } from 'src/utils/ibge-code';
 import { HolidayRepositoryInterface } from '../repositories/holiday-repository.interface';
 import { Holiday } from '../repositories/entities/holiday.entity';
 import { HolidayType } from '../../utils/enums/holiday-type.enum';
-import { MovableHoliday } from 'src/utils/enums/movable-holiday.enum';
+import { MovableHoliday, NameMovableHoliday } from 'src/utils/enums/movable-holiday.enum';
 import {
   BadRequestException,
   ForbiddenException,
@@ -126,10 +126,15 @@ export class HolidayService {
   }
 
   private async createMovableMunicipalHoliday(
-    name: string,
     codeIbge: string,
     isMovableHoliday: MovableHoliday,
   ) {
+    const name =
+      NameMovableHoliday[
+        isMovableHoliday
+          .toUpperCase()
+          .replace(/-/g, '_') as keyof typeof NameMovableHoliday
+      ];
     const movableHoliday = await this.holidayRepository.getMovableHoliday(
       codeIbge,
       isMovableHoliday,
@@ -192,32 +197,38 @@ export class HolidayService {
   }
 
   async createHoliday(
-    name: string,
     codeIbge: string,
     data: string,
+    name?: string,
   ): Promise<void> {
     await this.validateCodeIbge(codeIbge);
-
     if (await this.holidayRepository.getNationalHoliday(data)) {
       throw new ForbiddenException(
         'Feriado nacional existente para a data informada, não é possivel cadastrar um novo feriado nem atualizar o nome do mesmo',
       );
     }
 
-    if (isStateCode(codeIbge)) {
-      return await this.createStateHoliday(name, codeIbge, data);
-    }
-
-    const isMovableHoliday = parseMovableHoliday(data);
-
-    if (isMovableHoliday) {
+    if (!name) {
+      const isMovableHoliday = parseMovableHoliday(data);
+      if (!isMovableHoliday) {
+        throw new BadRequestException(
+          'E preciso informar um nome para o feriado',
+        );
+      }
+      if (isStateCode(codeIbge)) {
+        throw new BadRequestException(
+          'Não é possivel cadastrar um feriado movel para o estado, apenas para o municipio',
+        );
+      }
       return await this.createMovableMunicipalHoliday(
-        name,
         codeIbge,
         isMovableHoliday,
       );
     }
 
+    if (isStateCode(codeIbge)) {
+      return await this.createStateHoliday(name, codeIbge, data);
+    }
     return await this.createFixedMunicipalHoliday(name, codeIbge, data);
   }
 
