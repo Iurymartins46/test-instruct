@@ -165,7 +165,6 @@ export class HolidayService {
       codeIbgeState,
       data,
     );
-    console.log(codeIbge, data, JSON.stringify(stateHoliday));
     if (stateHoliday) {
       throw new BadRequestException(
         'Já existe um feriado estadual na data informada, não é possivel cadastrar um feriado municipal',
@@ -220,5 +219,74 @@ export class HolidayService {
     }
 
     return await this.createFixedMunicipalHoliday(name, codeIbge, data);
+  }
+
+  private async deleteStateHoliday(codeIbge: string, data: string) {
+    if (parseMovableHoliday(data)) {
+      throw new BadRequestException(
+        'Estado não tem feriado movel, apenas feriado fixo, não é possivel deletar',
+      );
+    }
+
+    if (await this.holidayRepository.getNationalHoliday(data)) {
+      throw new ForbiddenException(
+        'Não e possivel deletar um feriado nacional em um estado',
+      );
+    }
+    const stateHoliday = await this.holidayRepository.getStateHoliday(
+      codeIbge,
+      data,
+    );
+    if (!stateHoliday) {
+      throw new NotFoundException(
+        'Não existe feriado estadual na data informada',
+      );
+    }
+    return await this.holidayRepository.delete(stateHoliday.id);
+  }
+
+  private async deleteMunicipalHoliday(codeIbge: string, data: string) {
+    const isMovableHoliday = parseMovableHoliday(data);
+    if (isMovableHoliday) {
+      const movableHoliday = await this.holidayRepository.getMovableHoliday(
+        codeIbge,
+        isMovableHoliday,
+      );
+      if (!movableHoliday) {
+        throw new NotFoundException(
+          'Não existe feriado municipal para a data informada',
+        );
+      }
+      return await this.holidayRepository.delete(movableHoliday.id);
+    }
+
+    const codeIbgeState = codeIbge.slice(0, 2);
+    const nationalOrStateHoliday =
+      (await this.holidayRepository.getNationalHoliday(data)) ??
+      (await this.holidayRepository.getStateHoliday(codeIbgeState, data));
+    if (nationalOrStateHoliday) {
+      throw new ForbiddenException(
+        'Não e possivel deletar um feriado nacional ou estadual em um municipio',
+      );
+    }
+
+    const municipalityHoliday =
+      await this.holidayRepository.getMunicipalHoliday(codeIbge, data);
+    if (!municipalityHoliday) {
+      throw new NotFoundException(
+        'Não existe feriado municipal para a data informada',
+      );
+    }
+    return await this.holidayRepository.delete(municipalityHoliday.id);
+  }
+
+  async deleteHoliday(codeIbge: string, data: string): Promise<void> {
+    await this.validateCodeIbge(codeIbge);
+
+    if (isStateCode(codeIbge)) {
+      return await this.deleteStateHoliday(codeIbge, data);
+    }
+
+    return await this.deleteMunicipalHoliday(codeIbge, data);
   }
 }

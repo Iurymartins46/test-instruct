@@ -1,4 +1,13 @@
-import { Controller, Param, Body, Get, Put, Delete, Res } from '@nestjs/common';
+import {
+  Controller,
+  Param,
+  Body,
+  Get,
+  Put,
+  Delete,
+  Res,
+  HttpCode,
+} from '@nestjs/common';
 
 import { Response } from 'express';
 import { GetHolidayDto } from './dtos/get-holiday.dto';
@@ -37,14 +46,11 @@ export class HolidayController {
   }
 
   @Delete(':code_ibge/:data')
-  async deleteHoliday(
-    @Param() params: PutDeleteHolidayDto,
-    @Res() res: Response,
-  ) {
-    try {
-      return res.status(204).send();
-    } catch (error) {
-      return res.status(error.getStatus?.()).send();
-    }
+  @HttpCode(204)
+  async deleteHoliday(@Param() params: PutDeleteHolidayDto) {
+    return await this.holidayService.deleteHoliday(
+      params.code_ibge,
+      params.data,
+    );
   }
 }
